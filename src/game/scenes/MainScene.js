@@ -506,8 +506,13 @@ export default class MainScene extends Phaser.Scene {
   }
 
   preload() {
+    // Ikon dimuat dari folder public/icons (BUKAN src/assets/icons) supaya ikut
+    // ter-copy apa adanya ke hasil build (dist/) oleh Vite. Kalau path-nya string
+    // biasa ke dalam src/ seperti sebelumnya, Vite tidak bisa mendeteksi & membundle
+    // file-nya secara statis, jadi ikon akan 404 di production/hosting (mis. Vercel)
+    // walaupun tampil normal saat "npm run dev".
     const iconKeys = Object.values(DEVICE_INFO).map(d => d.icon);
-    iconKeys.forEach(key => this.load.image(key, `/src/assets/icons/${key}.png`));
+    iconKeys.forEach(key => this.load.image(key, `/icons/${key}.png`));
     this.load.on('loaderror', file => console.warn(`Icon belum ada: ${file.key}`));
   }
 
