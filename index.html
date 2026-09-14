@@ -5,8 +5,19 @@
     <link rel="icon" href="/icon.png">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TKJ Simulator</title>
+
+    <!-- Font "Press Start 2P" dimuat di sini lewat <link>, BUKAN @import di dalam
+         <style> seperti sebelumnya. Browser mendeteksi & mulai fetch <link> jauh
+         lebih awal (sebelum HTML/CSS lain sempat di-parse), sehingga font sudah
+         siap saat Phaser mulai menggambar teks ke canvas. @import di dalam <style>
+         baru terdeteksi SETELAH stylesheet induknya selesai di-parse -- di koneksi
+         production yang lebih lambat dari localhost, ini sering kali telat dan
+         bikin teks Phaser "kejepret" pakai font fallback selamanya. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap">
+
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
       * {
         margin: 0;
         padding: 0;

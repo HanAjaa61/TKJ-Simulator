@@ -517,7 +517,37 @@ export default class MainScene extends Phaser.Scene {
   }
 
   create() {
-    document.fonts.load(`16px ${PIXEL_FONT}`).then(() => this.buildUI());
+    this.loadPixelFontThenBuild();
+  }
+
+  // Menunggu font "Press Start 2P" benar-benar siap sebelum menggambar UI Phaser.
+  // PENTING: teks yang digambar Phaser ke <canvas> itu seperti "foto" -- begitu
+  // digambar pakai font fallback (mis. monospace bawaan browser), dia TIDAK akan
+  // otomatis berganti lagi walau font aslinya menyusul selesai dimuat setelahnya.
+  // Makanya proses ini tidak boleh asal document.fonts.load(...).then(...) saja,
+  // karena itu bisa "gagal diam-diam" kalau @font-face-nya belum sempat terdaftar
+  // di stylesheet saat baris ini dijalankan (rawan terjadi di hosting production
+  // seperti Vercel, beda dari localhost yang biasanya sudah ke-cache/cepat).
+  loadPixelFontThenBuild() {
+    const fontSpec = `16px ${PIXEL_FONT}`;
+    const proceed = () => this.buildUI();
+
+    // Kalau font sudah siap (mis. sudah pernah dimuat sebelumnya di sesi ini),
+    // langsung lanjut tanpa nunggu apa pun.
+    if (document.fonts.check(fontSpec)) {
+      proceed();
+      return;
+    }
+
+    // document.fonts.ready menunggu SEMUA font yang diminta oleh CSS halaman
+    // (termasuk <link> Google Fonts di index.html) selesai dimuat -- jauh lebih
+    // andal daripada document.fonts.load() untuk satu font spesifik. Dikombinasi
+    // dengan timeout 3 detik supaya game tetap bisa jalan (pakai font fallback)
+    // kalau koneksi user benar-benar lambat/terputus, bukannya macet selamanya.
+    Promise.race([
+      document.fonts.ready,
+      new Promise(resolve => setTimeout(resolve, 3000))
+    ]).then(proceed);
   }
 
   buildUI() {
